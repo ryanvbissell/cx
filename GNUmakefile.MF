@@ -1,0 +1,52 @@
+# vim: set ft=make:
+#
+# Copyright (c) 2016-2017, Ryan V. Bissell
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-2-Clause
+# See the enclosed "LICENSE" file for exact license terms.
+#
+
+# any code that uses cxlib is going to need these settings
+# TODO: what if we could detect this need based on compiler?
+#
+# TODO: there is a problem here with using the += operator to append
+# things to CF_CXXFLAGS, etc.: it causes spurious recompiles of some
+# modules if this make-forge fragment gets reloaded multiple times
+# (such as with multiple subsections in test-forge relying on it)
+# Probably the best solution would be to provide make functions that
+# treat CF_CXXFLAGS, etc. as sets, guaranteeing that each addition
+# occurs only once.   That may be problematic for CF_LDFLAGS, though,
+# as I believe that it is meaningful to sometimes repeat linker flags.
+#
+# For now, solve our problem with an explicit test, in-situ.
+$(if $(filter -std=c++17,$(CF_CXXFLAGS)),,$(eval override CF_CXXFLAGS+=-std=c++17))
+
+ifdef CXALL
+override CXDEBUG:=1
+override CXTRACE:=1
+endif
+
+# TODO, see long TODO above
+ifdef CXDEBUG
+override CF_CPPFLAGS+=-DCX_OPT_DEBUGOUT=1
+endif
+
+# TODO, see long TODO above
+ifdef CXTRACE
+override CF_CPPFLAGS+=-DCX_OPT_TRACING=1
+endif
+
+override CF_CPPFLAGS+=-DCX_OPSYS=$(HOSTOS)
+
+$(call mf-declare-target,static)
+    override CPPFLAGS+=-I$(CXDIR)/inc
+ifeq (undefined,$(flavor WITH))
+    $(call mf-add-sources,C++,$(CXDIR)/src,*.cpp)
+else
+    $(call mf-add-sources,C++,$(CXDIR)/src,cx-exceptions.cpp)
+    $(call mf-add-sources,C++,$(CXDIR)/src,cx-tracedebug.cpp)
+    $(foreach with,$(WITH),$(call mf-add-sources,C++,$(CXDIR)/src,cx-$(with)*.cpp))
+endif
+    $(call mf-build-static-library,libcx)
+
