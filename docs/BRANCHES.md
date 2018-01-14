@@ -24,6 +24,21 @@ RELEASE TAGS
     * `r3.1` and `r3.1.1` tags created in `dev-3.1`
 
 
+SUBMODULE-SUPPORT BRANCHES
+--------------------------
+These branches exist to be referenced by external projects that include
+this one as a submodule.  These may be useful if, for instance, the
+other project needs `master`, but with things from topic branches
+cherry-picked in.
+* Development should not take place directly within them
+* Should start with the prefix 'sub-'
+* Are named for either the release tag they most recently succeed, or
+  (failing that) the development branch that they are branched from.
+* Should end with the name of the external project that they support
+  Examples:
+    * `sub-0.1/dslang`
+
+
 TOPIC BRANCHES
 --------------
 * Start with the lower-case letter 't'
