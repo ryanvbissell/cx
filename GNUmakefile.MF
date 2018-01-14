@@ -43,10 +43,12 @@ $(call mf-declare-target,static)
     override CPPFLAGS+=-I$(CXDIR)/inc
 ifeq (undefined,$(flavor WITH))
     $(call mf-add-sources,C++,$(CXDIR)/src,*.cpp)
+    $(call mf-add-sources,C++,$(CXDIR)/src/os,$(HOSTOS)_*.cpp)
 else
     $(call mf-add-sources,C++,$(CXDIR)/src,cx-exceptions.cpp)
     $(call mf-add-sources,C++,$(CXDIR)/src,cx-tracedebug.cpp)
     $(foreach with,$(WITH),$(call mf-add-sources,C++,$(CXDIR)/src,cx-$(with)*.cpp))
+    $(if $(filter os,$(WITH)),$(call mf-add-sources,C++,$(CXDIR)/src/os,$(HOSTOS)_*.cpp))
 endif
     $(call mf-build-static-library,libcx)
 
