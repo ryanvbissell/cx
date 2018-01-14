@@ -4,6 +4,7 @@ CX
 A C++ development toolkit, including:
 
 * exception-aware topical trace-logging
+* intrusive-pointer implementation
 * os abstraction
 * ncurses encapsulation
 
@@ -26,7 +27,7 @@ My other project 'make-forge' will be recursively fetched whenever
 you clone this repo; make-forge is required for building cx, or
 running the CX test suite.
 
-<sub><sup>
+<sup>
 The name 'CX' is historical; before the turn of the millennium, I was
 working on a Xlib widget set called 'Criterion X', and 'CX' was the prefix
 I used for all the typedef names, class definitions, etc. within that
@@ -35,4 +36,4 @@ continued to use CX's debug tracing functionality and exception classes,
 in my more modern personal projects.  The name stuck, but no longer
 means the same thing.  Perhaps today the X in 'Criterion X' could mean
 "fill-in-the-blank"
-</sup></sub>
+</sub>

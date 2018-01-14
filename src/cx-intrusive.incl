@@ -1,0 +1,172 @@
+// vim: set tabstop=2 softtabstop=2 shiftwidth=2 expandtab :
+/*
+ * Copyright (c) 2017, Ryan V. Bissell
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ * See the enclosed "LICENSE" file for exact license terms.
+ */
+
+
+
+namespace CX {
+
+template <class T>
+CX_CONSTRUCTOR(IntrusivePtr<T>::IntrusivePtr, : thys_(nullptr))
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_CONSTRUCTOR(IntrusivePtr<T>::IntrusivePtr, :thys_(nullptr),
+                                                        std::nullptr_t)
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_CONSTRUCTOR(IntrusivePtr<T>::IntrusivePtr, :thys_(that), T* that,
+                                                            bool addRef)
+
+  if (addRef)
+    adopt();
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_CONSTRUCTOR(IntrusivePtr<T>::IntrusivePtr,
+                            :IntrusivePtr(const_cast<T*>(that),addRef),
+                                                          T const* that,
+                                                          bool addRef)
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_CONSTRUCTOR(IntrusivePtr<T>::IntrusivePtr, :thys_(that.thys_),
+                                                      IPtr const& that)
+
+  adopt();
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_CONSTRUCTOR(IntrusivePtr<T>::IntrusivePtr, :thys_(that.thys_),
+                                                           IPtr&& that)
+
+  // move constructor; refcount is unchanged
+  that.thys_ = nullptr;
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_DESTRUCTOR(IntrusivePtr<T>::~IntrusivePtr)
+
+  disown();
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_METHOD(typename IntrusivePtr<T>::IPtr& IntrusivePtr<T>::operator=,
+                                                      IPtr const& that)
+
+  // copy assignment
+
+  // NOTE: canonical implementation would usually be this:
+  //           IPtr(that).swap(*this);
+  //           return *this;
+  //       but that temporary object generates superfluous refcounting
+
+  disown();
+  thys_ = that.thys_;
+  adopt();
+
+  CX_RETURNREF(*this);
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_METHOD(typename IntrusivePtr<T>::IPtr& IntrusivePtr<T>::operator=,
+                                                          IPtr&& that)
+
+ // move assignment
+
+  disown();
+  thys_ = that.thys_;
+  that.thys_ = nullptr;
+  CX_RETURNREF(*this);
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_CONSTMETHOD(T& IntrusivePtr<T>::operator*)
+
+  CX_RETURNREF(*thys_);
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_CONSTMETHOD(T* IntrusivePtr<T>::operator->)
+
+  CX_RETURN(thys_);
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_CONSTMETHOD(IntrusivePtr<T>::operator bool)
+
+  CX_RETURN(!!thys_);
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_METHOD(void IntrusivePtr<T>::adopt)
+
+  // TODO, need CX::Arch::atomicIncrement()
+  if (thys_)
+    thys_->Adopted();
+
+CX_ENDMETHOD
+
+
+
+template <class T>
+CX_METHOD(void IntrusivePtr<T>::disown)
+
+  if (thys_)
+  {
+    bool moribund = thys_->Disowned();
+
+    CX_ASSERT(thys_->refcount_ >= 0, "intrusive refcount went negative");
+    if (moribund)
+    {
+      delete thys_;
+      thys_ = nullptr;
+    }
+  }
+
+CX_ENDMETHOD
+
+
+} // namespace 'CX'
+
