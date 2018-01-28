@@ -26,6 +26,7 @@ namespace CX
     virtual ~IntrusiveBase();
 
     bool Nascent() const { return nascent_; }
+    size_t Refcount() const { return refcount_; }
     virtual void Adopted() const;
     virtual bool Disowned() const;
 

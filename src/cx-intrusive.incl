@@ -157,7 +157,7 @@ CX_METHOD(void IntrusivePtr<T>::disown)
   {
     bool moribund = thys_->Disowned();
 
-    CX_ASSERT(thys_->refcount_ >= 0, "intrusive refcount went negative");
+    CX_ASSERT(thys_->Refcount() >= 0, "intrusive refcount went negative");
     if (moribund)
     {
       delete thys_;
